@@ -77,7 +77,7 @@ params = {'legend.fontsize':12,
          'legend.handlelength':10}
 rcParams.update(params)
 
-
+'''
 plt.figure(figsize=(13,8))
 plt.plot(genres)#genres是一个dataframe，也就是year和sum的dataframe
 plt.xticks(range(1910,2021,5))
@@ -114,27 +114,87 @@ plt.title('1-5名电影类型随时间的变化趋势',fontsize=15)
 plt.xlabel('年份',fontsize=15)
 plt.ylabel('数量（部）',fontsize=15)
 plt.show()
-
-
+'''
+'''
 fig = plt.figure(figsize=(10,7))
-y = genresSum.sort_values(ascending=True)
-rects = y.plot(kind='barh',label='genres')
-plt.yticks(np.arange(len(y)),y.index,fontsize=15)
+x = genresSum.sort_values(ascending=True)
+rects = x.plot(kind='bar',label='genres')
+plt.xticks(np.arange(len(x)),x.index,fontsize=15)
 plt.rc('font',family='SimHei',size=15) # 中文编码
 plt.title('电影类型的数量图')
-plt.xlabel('电影数量（部）',fontsize=15)
-plt.ylabel('电影类型',fontsize=15)
+plt.ylabel('电影数量（部）',fontsize=15)
+plt.xlabel('电影类型',fontsize=15)
 
-for i in range(len(y)):
-    plt.text(50,i,'%s'%(y[i]),fontsize=15,color='black')
+for i in range(len(x)):
+    plt.text(50,i,'%s'%(x[i]),fontsize=15,color='black')
+    print(x[i])
 
 plt.show()
+'''
+'''
+# 6.0 整理出各个电影类型的平均支出，平均利润
 
+mean_genre_budget = pd.DataFrame(index=genres_list)
 
+# 求出每种电影类型的平均支出
+newarray = []
 
+for genre in genres_list:
+    newarray.append(movies.groupby(genre)['budget'].mean())
 
+newarray2 = []
+for i in range(len(genres_list)):
+    newarray2.append(newarray[i][1])
+mean_genre_budget['mean_budget']=newarray2
+mean_genre_budget.head()
 
+mean_genre_profit = pd.DataFrame(index=genres_list)
 
+# 求出每种电影的平均利润
 
+newarray = []
+for genre in genres_list:
+    newarray.append(movies.groupby(genre)['profit'].mean())
+newarray2 = []
+for i in range(len(genres_list)):
+    newarray2.append(newarray[i][1])
 
+mean_genre_profit['mean_profit']=newarray2
 
+# 6.2 电影类型与支出、利润的关系
+
+from pylab import  rcParams
+
+params = {'legend.fontsize':12,
+         'legend.handlelength':8}
+
+rcParams.update(params)
+rcParams['figure.figsize'] = 8,6 # 图片大小
+
+mean_genre_budget.sort_values(by='mean_budget',ascending=True).plot.bar()
+
+plt.title('电影类型与支出关系图')
+plt.ylabel('平均支出（美元）')
+plt.xlabel('电影类型')
+plt.show()
+'''
+# 7 keywords 的‘based on novel ’可以帮助我们取到需要的信息，这里也涉及到了json
+
+# 7.0 keywords 列数据格式化
+movies['keywords'] = movies['keywords'].apply(json.loads)
+# 调用自定义函数decode 处理keywords列数据
+movies['keywords'] = movies['keywords'].apply(jdecode)
+# 查看后几行数据
+movies['keywords'].tail()
+
+lable = '原创电影','改编电影'
+fras = [4600,149]
+
+plt.axes(aspect=1) # 让饼状图画出来是圆形
+plt.pie(x=fras,labels=lable,autopct='%.2f%%',shadow=False,
+       startangle=15)
+plt.rc('font',family='SimHei',size=15)# 中文编码
+plt.title('原创电影与改编电影所占比例')
+plt.rc('font',size=16)
+plt.rc('axes',titlesize=28)
+plt.show()
